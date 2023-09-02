@@ -1,0 +1,16 @@
+.hidden {
+  display: none;
+}
+table{
+  border: 1px solid black;
+  border-collapse: collapse;
+  width: 100%;
+}
+tr, th, td{
+  text-align: center;
+  border: 1px solid black;
+  border-collapse: collapse;
+}
+#subject{
+  height: 22px;
+}
