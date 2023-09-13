@@ -1,13 +1,14 @@
 import React from 'react'
 
-const Assign2Calculation = ({data, method, onCalculation}) => {
+//att1 = dataset, att2= method of classifier
+const Assign3Calculation = ({att1, att2, onCalculation}) => {
 
     const onButtonClick = () => {
         try{                                                               
             fetch('http://localhost:8000/api/calculate3/', 
                 {   
                     method: 'POST',
-                    body: JSON.stringify({dataset, method}),  // Serialize the data as JSON
+                    body: JSON.stringify({att1, att2}),  // Serialize the data as JSON
                     headers: {'Content-Type': 'application/json'}
                 }
             ).then((response)=>response.json()).then(
@@ -30,4 +31,4 @@ const Assign2Calculation = ({data, method, onCalculation}) => {
     );
 }
 
-export default Assign2Calculation
+export default Assign3Calculation

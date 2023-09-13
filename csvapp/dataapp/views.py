@@ -4,12 +4,14 @@ from rest_framework.response import Response
 import json
 from .models import CSVFile
 import matplotlib.pyplot as plt
+from sklearn.preprocessing import LabelEncoder
 from sklearn import tree
-from django.http import HttpResponse,JsonResponse
+from django.http import HttpResponse,JsonResponse, FileResponse
 import scipy.stats
 from rest_framework import status
 import pandas as pd
 import math
+import os
 import numpy as np
 import statistics as st
 
@@ -259,12 +261,14 @@ def normalise(request):
     norm2 = min_max_normalization(ds[attname2])
     return Response({'norm1': norm1, 'norm2':norm2}, status=status.HTTP_200_OK)
    
-   
-def build_decision_tree(dfd, attribute_selection_measure):
-    X = dfd.drop('target_column', axis=1)  # Adjust 'target_column' to your dataset's target variable
-    y = dfd['target_column']
-
-    # Split the dataset into training and testing sets
+@api_view(['POST']) 
+def build_decision_tree(request):
+    twoattris = json.loads(request.body)
+    dfd = pd.DataFrame(twoattris['att1'])
+    print(dfd)
+    attribute_selection_measure = twoattris['att2']
+    X = dfd.drop('Species', axis=1)  # Adjust 'target_column' to your dataset's target variable
+    y = dfd['Species']
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
     # Create a DecisionTreeClassifier with the chosen attribute selection measure
@@ -277,108 +281,103 @@ def build_decision_tree(dfd, attribute_selection_measure):
 
     # Fit the classifier to the training data
     clf.fit(X_train, y_train)
+    decision_tree_text = export_text(clf, feature_names=X.columns.tolist())
+    tree.plot_tree(clf, filled=True, feature_names=X.columns.tolist(), class_names=list(map(str, clf.classes_)))
+    tree_image_path = 'static/plot/image.png'
+    os.makedirs(os.path.dirname(tree_image_path), exist_ok=True)
+    plt.savefig(tree_image_path)
+    return Response({'data': decision_tree_text}, status=status.HTTP_200_OK)
 
-    dot_data = export_graphviz(clf, out_file=None, 
-                             feature_names=X.columns,
-                             class_names=y.unique(),
-                             filled=True, rounded=True, special_characters=True)
+# def assignment3_confuse_matrix(request):
+#     node=CSVFile.objects.all()
+#     print(node[0].name)
 
-    graph = graphviz.Source(dot_data)
-    output_directory = "/path/to/your/directory"
-    graph.render("decision_tree")     
-    # Save the tree as a PDF file or any other format you prefer
+#     if len(node)==0 :
+#         return HttpResponse("No csv file in database !!")
 
+#     print("boundary 1")
+#     data = pd.read_csv(node[0].file)
+#     df = pd.DataFrame(data)
+#     file_name=node[0].name
+#     X = df.drop('variety', axis=1)
+#     Y = df['variety']
 
-def assignment3_confuse_matrix(request):
-    node=CSVFile.objects.all()
-    print(node[0].name)
+#     X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
+#     clf = DecisionTreeClassifier(criterion='entropy', splitter='best')
+#     clf.fit(X_train, y_train)
 
-    if len(node)==0 :
-        return HttpResponse("No csv file in database !!")
+#     y_pred = clf.predict(X_test)
 
-    print("boundary 1")
-    data = pd.read_csv(node[0].file)
-    df = pd.DataFrame(data)
-    file_name=node[0].name
-    X = df.drop('variety', axis=1)
-    Y = df['variety']
+#     conf_matrix = confusion_matrix(y_test, y_pred)
 
-    X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
-    clf = DecisionTreeClassifier(criterion='entropy', splitter='best')
-    clf.fit(X_train, y_train)
+#     accuracy = accuracy_score(y_test, y_pred)
+#     misclassification_rate = 1 - accuracy
+#     sensitivity = recall_score(y_test, y_pred, average='macro')
+#     precision = precision_score(y_test, y_pred, average='macro')
 
-    y_pred = clf.predict(X_test)
+#     response_data = {
+#         'confusion_matrix': conf_matrix.tolist(),
+#         'accuracy': accuracy,
+#         'misclassification_rate': misclassification_rate,
+#         'sensitivity': sensitivity,
+#         'precision': precision,
+#     }
 
-    conf_matrix = confusion_matrix(y_test, y_pred)
-
-    accuracy = accuracy_score(y_test, y_pred)
-    misclassification_rate = 1 - accuracy
-    sensitivity = recall_score(y_test, y_pred, average='macro')
-    precision = precision_score(y_test, y_pred, average='macro')
-
-    response_data = {
-        'confusion_matrix': conf_matrix.tolist(),
-        'accuracy': accuracy,
-        'misclassification_rate': misclassification_rate,
-        'sensitivity': sensitivity,
-        'precision': precision,
-    }
-
-    return JsonResponse(response_data, status=status.HTTP_200_OK)
+#     return JsonResponse(response_data, status=status.HTTP_200_OK)
 
 
-def assignment4(request):
-    node=CSVFile.objects.all()
-    print(node[0].name)
+# def assignment4(request):
+#     node=CSVFile.objects.all()
+#     print(node[0].name)
 
-    if len(node)==0 :
-        return HttpResponse("No csv file in database !!")
+#     if len(node)==0 :
+#         return HttpResponse("No csv file in database !!")
 
-    print("boundary 1")
-    data = pd.read_csv(node[0].file)
-    df = pd.DataFrame(data)
-    file_name=node[0].name
-    X = df.drop('variety', axis=1)
-    Y = df['variety']
+#     print("boundary 1")
+#     data = pd.read_csv(node[0].file)
+#     df = pd.DataFrame(data)
+#     file_name=node[0].name
+#     X = df.drop('variety', axis=1)
+#     Y = df['variety']
 
-    X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
-    clf = DecisionTreeClassifier(criterion='entropy', splitter='best')
-    clf.fit(X_train, y_train)
-
-
-    rules = export_text(clf, feature_names=list(X.columns.tolist()))
-
-    y_pred = clf.predict(X)
-    accuracy = accuracy_score(Y, y_pred)
-
-    coverage = len(y_pred) / len(Y) * 100
-
-    rule_count = len(rules.split('\n'))
-
-    my_data = {
-        "name":file_name,
-        'rules': rules,
-        'accuracy': accuracy,
-        'coverage': coverage,
-        'toughness': rule_count,
-    }
-    return JsonResponse(my_data)
+#     X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
+#     clf = DecisionTreeClassifier(criterion='entropy', splitter='best')
+#     clf.fit(X_train, y_train)
 
 
-def assignment5(request):
-    node=CSVFile.objects.all()
-    print(node[0].name)
+#     rules = export_text(clf, feature_names=list(X.columns.tolist()))
 
-    if len(node)==0 :
-        return HttpResponse("No csv file in database !!")
+#     y_pred = clf.predict(X)
+#     accuracy = accuracy_score(Y, y_pred)
 
-    print("boundary 1")
-    data = pd.read_csv(node[0].file)
-    df = pd.DataFrame(data)
-    file_name=node[0].name
-    X = df.drop('variety', axis=1)
-    Y = df['variety']
-    my_data={
-        "name":file_name
-    }
-    return JsonResponse(my_data)
+#     coverage = len(y_pred) / len(Y) * 100
+
+#     rule_count = len(rules.split('\n'))
+
+#     my_data = {
+#         "name":file_name,
+#         'rules': rules,
+#         'accuracy': accuracy,
+#         'coverage': coverage,
+#         'toughness': rule_count,
+#     }
+#     return JsonResponse(my_data)
+
+
+# def assignment5(request):
+#     node=CSVFile.objects.all()
+#     print(node[0].name)
+
+#     if len(node)==0 :
+#         return HttpResponse("No csv file in database !!")
+
+#     print("boundary 1")
+#     data = pd.read_csv(node[0].file)
+#     df = pd.DataFrame(data)
+#     file_name=node[0].name
+#     X = df.drop('variety', axis=1)
+#     Y = df['variety']
+#     my_data={
+#         "name":file_name
+#     }
+#     return JsonResponse(my_data)

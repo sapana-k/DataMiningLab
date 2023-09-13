@@ -1,22 +1,24 @@
-import React from 'react'
-import Assign1Main from '../Assignment1/Assign1Main'
+import React, {useState} from 'react'
 import Assign1FileUpload from '../Assignment1/Assign1FileUpload';
+import Assign3Calculation from '../Assignment3/Assign3Calculation';
+import image from 'file:///C:/Users/sapan/Downloads/adminPanelAssignment1/csvapp/static/plot/image.png'
 const Assign3Main = () => {
   const [att1, setAtt1] = useState('');
 
-  const [statistics, setStatistics] = useState({ mean: null, median: null, mode: null, midrange: null, variance: null, std: null, range: null, interquartile: null,fiveSumm:{'high':null, 'q3':null, 'median':null, 'q1':null, 'low':null}, attributes: [], df:[], min_max_norm: [],z_score_norm:[],dec_scaling_norm:[]});
-    const handleCalculation = (data) => {
-      setStatistics(data); 
+  const [treeImage, setTreeImage] = useState(null);
+   const handleCalculation = (data) => {
+      setTreeImage(data); 
     }
 
   const handleChangeAtt1 = (e) => {
     setAtt1(e.target.value);
   }
-  options = [
+  const options = [
     'information_gain',
     'gain_ratio',
     'gini_index'
   ];
+  
   const [attributes, setAttributes] = useState([])
   const [dataset, setDataset] = useState({})
 
@@ -36,7 +38,11 @@ const Assign3Main = () => {
         ))
         }
       </select>
-      <Assign1Calculation data={dataset} method ={att1} onSubmission={handleCalculation}/>   
+      <Assign3Calculation att1={dataset} att2 ={att1} onCalculation={handleCalculation}/> 
+      <h2>Decision Tree Visualization</h2>
+      <img src={image} alt="decision tree">
+      </img>
+          {/* {image && <img src={image} alt="Decision Tree" />} */}
     </div>
   )
 }
