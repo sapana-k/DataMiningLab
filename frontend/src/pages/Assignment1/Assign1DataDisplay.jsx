@@ -1,86 +1,51 @@
 import './styles.css';
-import './Assign1Plots';
+import {ScatterPlot, BoxPlot, Histogram} from './Assign1Plots';
+import Assign2Calculation from '../Assignment2/Assign2Calculation';
 import React, {useState} from 'react';
-import { Scatter } from 'react-chartjs-2';
-import { Boxplot } from 'react-chartjs-2';
 
 function DataDisplay ({ mean, median, mode, midrange, variance, std, range, interquartile, fiveSumm, attributes, dataset}){
   
-  const [att, setAtt] = useState('');
-  const handleAttChange = (event) => {
-    setAtt(event.target.value);
+  const [histogramAtt, sethistogramAtt] = useState('');
+  const handlehistogramAttChange = (event) => {
+    sethistogramAtt(event.target.value);
   };
 
-  const [xaxis, setXaxis] = useState('');
-  const handleChangex = (event) => {
-    setXaxis(event.target.value);
+  const [xaxisSc, setXaxisSc] = useState('');
+  const handleChangexSc = (event) => {
+    setXaxisSc(event.target.value);
   };
 
-  const [yaxis, setYaxis] = useState('');
-  const handleChangey = (event) => {
-    setYaxis(event.target.value);
+  const [yaxisSc, setYaxisSc] = useState('');
+  const handleChangeySc = (event) => {
+    setYaxisSc(event.target.value);
   };
 
-  const QuantilePlot = ({data}) => {
+  const [xaxisqq, setXaxisqq] = useState('');
+  const handleChangexqq = (event) => {
+    setXaxisqq(event.target.value);
+  };
 
+  const [yaxisqq, setYaxisqq] = useState('');
+  const handleChangeyqq = (event) => {
+    setYaxisqq(event.target.value);
+  };
+
+  const [coef, setCoef] = useState(null)
+  const [p, setP] = useState(null)
+  const afterCalculation = (data) => {
+    setCoef(data['coef']);
+    setP(data['p']);
   }
+  const [att1, setAtt1] = useState('');
+  const [att2, setAtt2] = useState('');
 
-  const QQPlot = ({data}) => {
-    
+  const handleChangeAtt1 = (e) => {
+    setAtt1(e.target.value);
+  }
+  const handleChangeAtt2 = (e) => {
+    setAtt2(e.target.value);
   }
   
-  const Histogram = ({data}) => {
-    
-  }
-
-  const ScatterPlot = ({irisData}) => {
-    const data = {
-      labels: 'Labelll',
-      datasets: [
-        {
-          label: 'Sepal Length vs Sepal Width',
-          data: {
-            x: irisData['SepalLengthCm'],
-            y: irisData['SepalWidthCm']
-        },
-          // data: irisData.map((entry) => ({
-          //   x: entry.sepalLengthCm,
-          //   y: entry.sepalWidthCm,
-          // })),
-          backgroundColor: 'rgba(75, 192, 192, 0.4)',
-        },
-        // Add more datasets for other combinations
-      ],
-    };
-  
-    return <Scatter data={data} />;
-  }
-
-  // const BoxPlot = ({irisData}) => {
-  //   const labels = irisData.map((entry) => entry.Species);
-  //   const datasets = [
-  //     {
-  //       label: 'Sepal Length',
-  //       data: irisData.map((entry) => entry.SepalLengthCm),
-  //     },
-  //     // Add more datasets for other attributes
-  //   ];
-  
-  //   const data = {
-  //     labels,
-  //     datasets,
-  //   };
-  
-  //   return <Boxplot data={data} />;
-  // }
-
-  const options= [
-    {label: 'Quantile plot', value: 'QuantilePlot//'},
-    {label: 'Quantile-quantile plot', value: 'QQPlot//'},
-    {label: 'Histogram', value: 'HistohramPlot//'},
-    {label: 'Scatter plot', value: 'ScatterPlot//'},
-    {label: 'Boxplot', value: 'BoxPlot//'},
-  ]
   return (
     <div>
       <br></br>
@@ -97,8 +62,8 @@ function DataDisplay ({ mean, median, mode, midrange, variance, std, range, inte
         </thead>
         <tbody>
         <tr className={mean === null ? 'hidden' : ''}>
-          <td>{JSON.stringify(median)}</td>
           <td>{JSON.stringify(mean)}</td>
+          <td>{JSON.stringify(median)}</td>
           <td>{JSON.stringify(mode)}</td>
           <td>{JSON.stringify(midrange)}</td>
           <td>{JSON.stringify(variance)}</td>
@@ -126,20 +91,20 @@ function DataDisplay ({ mean, median, mode, midrange, variance, std, range, inte
             <table>
             <thead>
             <tr>
-            <th>high</th>
-            <th>Q3</th>
-            <th>Q2</th>
-            <th>Q1</th>
             <th>low</th>
+            <th>Q1</th>
+            <th>Q2</th>
+            <th>Q3</th>
+            <th>high</th>
             </tr>
             </thead>
             <tbody>
             <tr>
-              <td>{JSON.stringify(fiveSumm['high'])}</td>
-              <td>{JSON.stringify(fiveSumm['q3'])}</td>
-              <td>{JSON.stringify(fiveSumm['median'])}</td>
-              <td>{JSON.stringify(fiveSumm['q1'])}</td>
               <td>{JSON.stringify(fiveSumm['low'])}</td>
+              <td>{JSON.stringify(fiveSumm['q1'])}</td>
+              <td>{JSON.stringify(fiveSumm['median'])}</td>
+              <td>{JSON.stringify(fiveSumm['q3'])}</td>
+              <td>{JSON.stringify(fiveSumm['high'])}</td>
             </tr>
             </tbody>
             </table>
@@ -149,8 +114,9 @@ function DataDisplay ({ mean, median, mode, midrange, variance, std, range, inte
       </table>
       <br/>
       <h3>Graphical Display of Dispersion of Data: </h3>
-      <br/>
-      X axis :  <select id="xaxis" onChange={handleChangex} value={xaxis}>
+      <h4>Quantile Plot : </h4> 
+      <h4>Quantile-Quantile Plot : </h4> 
+      X axis :  <select id="xaxis" onChange={handleChangexqq} value={xaxisqq}>
         <option value=''>Select X-axis parameter</option>
         {
         attributes.map((e, i)=> (
@@ -158,7 +124,7 @@ function DataDisplay ({ mean, median, mode, midrange, variance, std, range, inte
         ))
         }
       </select>
-      Y axis :  <select id="yaxis" onChange={handleChangey} value={yaxis} >
+       Y axis :  <select id="yaxis" onChange={handleChangeyqq} value={yaxisqq} >
         <option value=''>Select Y-axis parameter</option>
         {
         attributes.map((e, i)=> (
@@ -166,14 +132,65 @@ function DataDisplay ({ mean, median, mode, midrange, variance, std, range, inte
         ))
         }
       </select>
-      <p>x - {xaxis}</p>
-      <p>y - {yaxis}</p>
-      <h4>Quantile Plot : </h4> 
-      <h4>Quantile-Quantile Plot : </h4> 
+      <h2>{yaxisqq}</h2>
+      <h2>{xaxisqq}</h2>
       <h4>Scatterplot : </h4>
+      X axis :  <select id="xaxis" onChange={handleChangexSc} value={xaxisSc}>
+        <option value=''>Select X-axis parameter</option>
+        {
+        attributes.map((e, i)=> (
+         <option key={i} value={e}>{e}</option>
+        ))
+        }
+      </select>
+       Y axis :  <select id="yaxis" onChange={handleChangeySc} value={yaxisSc} >
+        <option value=''>Select Y-axis parameter</option>
+        {
+        attributes.map((e, i)=> (
+          <option key={i} value={e}>{e}</option>
+        ))
+        }
+      </select>
+      <ScatterPlot data={dataset} xaxis={xaxisSc} yaxis={yaxisSc}></ScatterPlot>
       <h4>Histogram : </h4> 
+      Select X-axis :  <select id="xaxis" onChange={handlehistogramAttChange} value={histogramAtt}>
+        <option value=''>Select attribute</option>
+        {
+        attributes.map((e, i)=> (
+         <option key={i} value={e}>{e}</option>
+        ))
+        }
+        </select>
+      <Histogram dataset = {dataset} att = {histogramAtt}></Histogram>
       <h4>Boxplot : </h4>
-    </div>
+      <BoxPlot data={dataset}></BoxPlot>
+
+      <h2>Correlation Analysis - </h2>
+
+      Select 2 attributes to check their correlation - 
+    {attributes ? ( 
+      <div>
+      Attribute 1 :  <select id="att1" onChange={handleChangeAtt1} value={att1}>
+        <option value=''>Select attribute</option>
+        {
+        attributes.map((e, i)=> (
+         <option key={i} value={e}>{e}</option>
+        ))
+        }
+      </select>
+      Attribute 2 :  <select id="att2" onChange={handleChangeAtt2} value={att2} >
+        <option value=''>Select attribute</option>
+        {
+        attributes.map((e, i)=> (
+          <option key={i} value={e}>{e}</option>
+        ))
+        }
+      </select>
+      </div> 
+      ) : (<p></p>)}
+      <Assign2Calculation data={dataset} attribute1={att1} attribute2={att2} onCalculation={afterCalculation}></Assign2Calculation>
+      <div>Correlation coefficient of {att1} and {att2} is {coef} and p value is {p}</div>
+  </div>
   );
 }
   export default DataDisplay;

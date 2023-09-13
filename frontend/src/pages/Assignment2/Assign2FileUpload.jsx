@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-const Assign1FileUpload = ({ onUpload }) => {
+const Assign2FileUpload = ({ onUpload }) => {
   const [isFilePicked, setIsFilePicked] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
 
@@ -21,7 +21,7 @@ const handleSubmission = (e) => {
   formData.append('file', file);
   try {
     fetch(
-      'http://localhost:8000/api/uploadIris/',
+      'http://localhost:8000/api/uploadBreast/',
       {
         method: 'POST',
         body: formData,
@@ -62,4 +62,5 @@ const handleSubmission = (e) => {
       </div>
   );
 };
-export default Assign1FileUpload;
+
+export default Assign2FileUpload;

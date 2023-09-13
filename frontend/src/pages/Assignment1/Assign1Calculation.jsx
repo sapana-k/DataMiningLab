@@ -5,10 +5,9 @@ const Assign1Calculation = ({ data, attribute, onSubmission}) => {
 
   const handleCalculation = () => {
     const coldata = data[attribute];
-    console.log(coldata)
     try {
       fetch(
-        'http://localhost:8000/api/calculate/',
+        'http://localhost:8000/api/calculate1/',
         {
           method: 'POST',
           // body: coldata,
